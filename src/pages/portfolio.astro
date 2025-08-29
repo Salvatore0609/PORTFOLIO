@@ -12,7 +12,7 @@ import type { EntryFieldTypes } from 'contentful'
 interface Project {
   contentTypeId: 'Projects'
   fields: {
-    name: EntryFieldTypes.Text
+    title: EntryFieldTypes.Text
     img: EntryFieldTypes.AssetLink
     website: EntryFieldTypes.EntryResourceLink<any>
     repository: EntryFieldTypes.EntryResourceLink<any>
@@ -41,11 +41,11 @@ const entries = await contentfulClient.getEntries<Project>({})
             <ProjectCard
               key={entry?.sys?.id}
               href={entry?.fields?.url}
-              heading={entry?.fields?.name}
+              heading={entry?.fields?.title}
               subheading={entry?.fields?.description}
               tags={entry?.fields?.tags}
               imagePath={entry?.fields?.img?.fields?.file.url}
-              altText={entry?.fields?.img?.fields.name}
+              altText={entry?.fields?.img?.fields?.title}
               class="w-full sm:w-2/5"
             />
           ))
