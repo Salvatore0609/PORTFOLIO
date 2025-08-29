@@ -1,0 +1,36 @@
+---
+import Card from '../Card.astro'
+import { LINKS } from '../../lib/constants'
+---
+
+<Card colSpan="md:col-span-1" rowSpan="md:row-span-4">
+  <div class="h-full">
+    <header class="flex items-center">
+      <h1 class="text-xl font-bold text-foreground">
+        Let's start working together!
+      </h1>
+    </header>
+    <address class="mt-4 flex flex-col">
+      <h2 class="text-gray-500">Contact Details</h2>
+      <p
+        class="flex items-center rounded-lg border border-transparent p-2 text-xs text-orange-400 hover:border-orange-400"
+      >
+        salvatoredesole1998@gmail.com
+      </p>
+    </address>
+    <div class="mt-4 flex w-fit flex-col">
+      <h2 class="text-gray-500">Socials</h2>
+      <ul>
+        <li>
+          <a href={LINKS.linkedin} target="_blank">Linkedin</a>
+        </li>
+      </ul>
+    </div>
+    <img
+      src="/test_avatar3.png"
+      class="pointer-events-none absolute max-h-[300px] w-auto"
+      style="margin-top: 26rem; right: 25px"
+      alt="Avatar of Salvatore Desole"
+    />
+  </div>
+</Card>

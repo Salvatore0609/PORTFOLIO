@@ -1,0 +1,64 @@
+---
+import Card from '../Card.astro'
+import { Button } from '../ui/button'
+import { LINKS } from '../../lib/constants'
+import { Linkedin, Github, Mail, Instagram } from 'lucide-react'
+import { FaDiscord } from 'react-icons/fa'
+---
+
+<Card colSpan="md:col-span-3" rowSpan="md:row-span-4">
+  <div class="flex h-full w-full">
+    <div class="flex flex-col justify-between gap-4 md:max-h-[300px]">
+      <div class="flex h-full flex-col">
+        <h6 class="m-0 text-sm font-light text-gray-500">welcome</h6>
+        <p class="text-l m-0 font-light">
+          Hi, I'm <b class="font-bold">Salvatore Desole</b>, with a background
+          in architectural design and 3D modeling, I've developed a strong
+          passion for creating solutions that combine functionality with visual
+          clarity. This mindset led me to software development, where I applied
+          the same creative and analytical approach in a dynamic,
+          technology-driven environment. Today, as a full-stack developer, I
+          merge the technical precision of architecture with the ability to
+          build useful, intuitive, and impactful digital products.
+        </p>
+      </div>
+      <div class="flex gap-4">
+        <a href={LINKS.github} aria-label="github profile" target="_blank">
+          <Button aria-label="github profile">
+            <Github />
+            <span class="sr-only">GitHub Profile</span>
+          </Button>
+        </a>
+        <a href={LINKS.linkedin} aria-label="linkedin profile" target="_blank">
+          <Button aria-label="linkedin profile">
+            <Linkedin />
+            <span class="sr-only">Linkedin Profile</span>
+          </Button>
+        </a>
+        <a
+          href={LINKS.instagram}
+          aria-label="instagram profile"
+          target="_blank"
+        >
+          <Button aria-label="instagram profile">
+            <Instagram />
+            <span class="sr-only">Instagram Profile</span>
+          </Button>
+        </a>
+        <a href={LINKS.discord} aria-label="discord profile" target="_blank">
+          <Button aria-label="discord profile">
+            <FaDiscord />
+            <span class="sr-only">Discord Profile</span>
+          </Button>
+        </a>
+      </div>
+    </div>
+    <img
+      width="300"
+      height="300"
+      src="/me_hello.png"
+      class="pointer-events-none absolute bottom-[-20px] right-[-110px] z-[-1] max-h-[300px] w-auto select-none opacity-50 md:relative md:bottom-auto md:right-auto md:z-auto md:opacity-100"
+      alt="avatar of Salvatore Desole"
+    />
+  </div>
+</Card>
