@@ -20,6 +20,13 @@ interface Project {
 }
 
 const entries = await contentfulClient.getEntries<Project>({})
+// Funzione per ottenere l'URL completo dell'immagine
+const getImageUrl = (asset) => {
+  if (!asset || !asset.fields || !asset.fields.file || !asset.fields.file.url) {
+    return null
+  }
+  return 'https:' + asset.fields.file.url
+}
 ---
 
 <BaseLayout
@@ -37,18 +44,21 @@ const entries = await contentfulClient.getEntries<Project>({})
     <BottomLayout size="xl">
       <div class="flex w-full flex-wrap justify-center gap-2">
         {
-          entries.items.map((entry: any) => (
-            <ProjectCard
-              key={entry?.sys?.id}
-              href={entry?.fields?.url}
-              heading={entry?.fields?.title}
-              subheading={entry?.fields?.description}
-              tags={entry?.fields?.tags}
-              imagePath={entry?.fields?.img?.fields?.file.url}
-              altText={entry?.fields?.img?.fields?.title}
-              class="w-full sm:w-2/5"
-            />
-          ))
+          entries.items.map((entry: any) => {
+            const imageUrl = getImageUrl(entry.fields.img)
+            return (
+              <ProjectCard
+                key={entry?.sys?.id}
+                href={entry?.fields?.url}
+                heading={entry?.fields?.title}
+                subheading={entry?.fields?.description}
+                tags={entry?.fields?.tags}
+                imagePath={imageUrl}
+                altText={entry?.fields?.img?.fields?.title}
+                class="w-full sm:w-2/5"
+              />
+            )
+          })
         }
       </div>
     </BottomLayout>
