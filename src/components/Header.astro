@@ -3,7 +3,7 @@ import { buttonVariants } from '../components/ui/button'
 import { ModeToggle } from '../components/ui/ThemeToggle'
 ---
 
-<script is:inline>
+<!-- <script is:inline>
   document.addEventListener('astro:after-swap', function () {
     if (localStorage.getItem('theme') === 'dark')
       document.documentElement.classList.toggle('dark', true)
@@ -15,6 +15,18 @@ import { ModeToggle } from '../components/ui/ThemeToggle'
 
   const isDark = getThemePreference() === 'dark'
   document.documentElement.classList[isDark ? 'add' : 'remove']('dark')
+</script> -->
+<script is:inline>
+  const applyTheme = () => {
+    const stored = localStorage.getItem('theme')
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isDark = stored === 'dark' || (stored === 'system' && prefersDark) || (!stored && prefersDark)
+    document.documentElement.classList[isDark ? 'add' : 'remove']('dark')
+  }
+
+  applyTheme()
+
+  document.addEventListener('astro:after-swap', applyTheme)
 </script>
 
 <header

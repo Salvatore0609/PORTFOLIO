@@ -2,7 +2,6 @@ import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import tailwind from '@astrojs/tailwind'
 
-// https://astro.build/config
 export default defineConfig({
   site: process.env.CI
     ? 'https://astro-shadcn-ui-template.vercel.app'
@@ -13,6 +12,11 @@ export default defineConfig({
       applyBaseStyles: false,
     }),
   ],
+  vite: {
+    optimizeDeps: {
+      force: true,
+    },
+  },
   image: {
     domains: ['images.ctfassets.net'],
     remotePatterns: [
