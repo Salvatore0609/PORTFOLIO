@@ -28,4 +28,10 @@ export default defineConfig({
       },
     ],
   },
+  // AGGIUNTA QUESTA SEZIONE i18n
+  i18n: {
+    defaultLocale: 'it',          // lingua predefinita (italiano)
+    locales: ['it', 'en'],        // lingue supportate
+    routing: 'manual'             // usiamo cookie + middleware per gestire la lingua
+  }
 })

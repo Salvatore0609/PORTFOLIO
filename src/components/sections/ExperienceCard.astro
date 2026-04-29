@@ -2,9 +2,13 @@
 import Card from '../Card.astro'
 import { Button } from '../ui/button'
 import { EXPERIENCE } from '../../lib/constants'
+import { useTranslations } from '../../i18n/utils';
+
+const { lang = 'it' } = Astro.locals as { lang?: 'it' | 'en' };
+const t = useTranslations(lang);
 ---
 
-<Card colSpan="md:col-span-1" rowSpan="md:row-span-2" title="Experience">
+<Card colSpan="md:col-span-1" rowSpan="md:row-span-2" title={t('experience.title') as string}>
   <div class="mt-2 space-y-4">
     {
       EXPERIENCE.slice(0, 3).map((exp) => (
@@ -20,7 +24,7 @@ import { EXPERIENCE } from '../../lib/constants'
       ))
     }
     <a href="/work">
-      <Button variant="link" className="pl-0"> View More </Button>
+      <Button variant="link" className="pl-0"> {t('experience.view_more')} </Button>
     </a>
   </div>
 </Card>

@@ -1,15 +1,18 @@
 ---
 import Card from '../Card.astro'
+import { useTranslations } from '../../i18n/utils';
+
+const lang = (Astro.locals as any).lang || 'it';
+const t = useTranslations(lang);
+const stackList = t('stack.list');
+const stackItems: string[] = Array.isArray(stackList) ? stackList as string[] : [String(stackList)];
 ---
 
-<Card colSpan="md:col-span-2" rowSpan="md:row-span-1" title="My Stack">
+<Card colSpan="md:col-span-2" rowSpan="md:row-span-1" title={String(t('stack.title'))}>
   <p class="text-sm font-light">
-    Here's a snapshot of the primary tools and technologies I work with:
+    {t('stack.description')}
   </p>
   <ul class="list-disc pl-5 text-sm font-light">
-    <li><strong>Solidjs</strong></li>
-    <li><strong>JavaScript</strong></li>
-    <li><strong>Node.js</strong></li>
-    <li><strong>React.js</strong></li>
+    {stackItems.map((item: string) => <li><strong>{item}</strong></li>)}
   </ul>
 </Card>

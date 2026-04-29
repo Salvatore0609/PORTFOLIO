@@ -1,21 +1,17 @@
 ---
 import { buttonVariants } from '../components/ui/button'
 import { ModeToggle } from '../components/ui/ThemeToggle'
+import LanguageToggle from '../components/LanguageToggle'
+import { useTranslations } from '../i18n/utils';
+
+interface Props {
+  currentLang?: 'it' | 'en'
+}
+
+const { currentLang = 'it' } = Astro.props
+const t = useTranslations(currentLang);
 ---
 
-<!-- <script is:inline>
-  document.addEventListener('astro:after-swap', function () {
-    if (localStorage.getItem('theme') === 'dark')
-      document.documentElement.classList.toggle('dark', true)
-  })
-
-  const getThemePreference = () => {
-    return localStorage.getItem('theme')
-  }
-
-  const isDark = getThemePreference() === 'dark'
-  document.documentElement.classList[isDark ? 'add' : 'remove']('dark')
-</script> -->
 <script is:inline>
   const applyTheme = () => {
     const stored = localStorage.getItem('theme')
@@ -23,25 +19,20 @@ import { ModeToggle } from '../components/ui/ThemeToggle'
     const isDark = stored === 'dark' || (stored === 'system' && prefersDark) || (!stored && prefersDark)
     document.documentElement.classList[isDark ? 'add' : 'remove']('dark')
   }
-
   applyTheme()
-
   document.addEventListener('astro:after-swap', applyTheme)
 </script>
 
-<header
-  class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
->
-  <div
-    class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0"
-  >
+<header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  <div class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
     <div class="flex gap-6 md:gap-10">
       <a href="/" class="flex items-center space-x-2">
-        <span class="inline-block font-bold">Salvatore Desole</span>
+        <span class="inline-block font-bold">{t('nav.brand')}</span>
       </a>
     </div>
     <div class="flex flex-1 items-center justify-end space-x-4">
       <nav class="flex items-center space-x-1">
+        <LanguageToggle currentLang={currentLang} client:load />
         <ModeToggle transition:persist client:load />
       </nav>
     </div>

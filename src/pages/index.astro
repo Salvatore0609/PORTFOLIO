@@ -1,4 +1,5 @@
 ---
+import { useTranslations } from '../i18n/utils';
 import BaseLayout from '../layouts/BaseLayout.astro'
 import IntroCard from '../components/sections/IntroCard.astro'
 import AboutMe from '../components/sections/AboutMe.astro'
@@ -10,8 +11,10 @@ import CVCard from '../components/sections/CVCard.astro'
 import ExperienceCard from '../components/sections/ExperienceCard.astro'
 import StudyCard from '../components/sections/StudyCard.astro'
 import TalentEpicode from '../components/sections/TalentEpicode.astro'
-//
-/* import { motion, AnimatePresence } from 'framer-motion' */
+
+const t = useTranslations('it');   // lingua italiana per la root
+const pageTitle = `Salvatore Desole - ${t('hero.name')}`;
+const pageDescription = `${t('hero.name')} - Full Stack Developer - ${t('portfolio.title')}, Projects, CV, About Me, Contact, Timezone, Now, Experience`;
 ---
 
 <script>
@@ -37,10 +40,7 @@ import TalentEpicode from '../components/sections/TalentEpicode.astro'
   timeline(sequence as TimelineDefinition)
 </script>
 
-<BaseLayout
-  title="Salvatore Desole - Full Stack Developer"
-  description="Salvatore Desole - Full Stack Developer - Portfolio, Projects, CV, About Me, Contact, Timezone, Now, Experience, Tattoo, Study"
->
+<BaseLayout title={pageTitle} description={pageDescription}>
   <div
     slot="loader"
     class="loader bg-darkslate-700 fixed bottom-0 left-0 right-0 top-0 z-50 flex h-screen w-screen items-center justify-center text-3xl font-black uppercase text-neutral-50"
@@ -56,7 +56,7 @@ import TalentEpicode from '../components/sections/TalentEpicode.astro'
     <Card
       colSpan="md:col-span-1"
       rowSpan="md:row-span-2"
-      title="Portfolio & Projects"
+      title={String(t('portfolio.title'))}
       href="/portfolio"
     />
     <TimeZoneCard />
@@ -64,13 +64,9 @@ import TalentEpicode from '../components/sections/TalentEpicode.astro'
     <ExperienceCard />
     <Card colSpan="md:col-span-1" rowSpan="md:row-span-1">
       <div class="flex h-full flex-col justify-between">
-        <h1 class="text-lg font-bold text-foreground">Soft Skills</h1>
+        <h1 class="text-lg font-bold text-foreground">{t('softskills.title')}</h1>
         <blockquote class="mt-6 border-l-2 pl-6 italic">
-          I gained experience in architectural firms, technical environments,
-          and real estate, developing strong communication, teamwork, and
-          problem-solving skills. I'm used to managing tasks independently,
-          meeting deadlines, and translating client needs into effective
-          solutions. I quickly adapt to new tools and technologies.
+          {t('softskills.quote')}
         </blockquote>
       </div>
     </Card>

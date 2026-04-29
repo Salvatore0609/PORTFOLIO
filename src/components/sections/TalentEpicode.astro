@@ -1,12 +1,16 @@
 ---
 import Card from '../Card.astro'
 import { LINKS } from '../../lib/constants'
+import { useTranslations } from '../../i18n/utils';
+
+const lang = ((Astro.locals as { lang?: "it" | "en" }).lang) || 'it';
+const t = useTranslations(lang);
 ---
 
 <Card
   colSpan="md:col-span-1"
   rowSpan="md:row-span-2"
-  title="Talent Epicode"
+  title={t('talent.title') as string}
   href={LINKS.epicode}
 >
   <div class="flex h-full w-full flex-col">
@@ -21,8 +25,7 @@ import { LINKS } from '../../lib/constants'
     </div>
     <div>
       <p class="mt-2 text-sm text-muted-foreground">
-        If you'd like to see my training path in web development, this page can
-        help you!
+        {t('talent.description')}
       </p>
     </div>
   </div>
