@@ -11,16 +11,8 @@ declare global {
 
 const languageMiddleware = defineMiddleware(async (context, next) => {
   const url = context.url;
-  let lang = context.cookies.get('lang')?.value;
-  
-  if (!lang) {
-    lang = getLangFromUrl(url);
-  }
-
-  // Imposta la lingua nelle variabili locali di Astro per usarla nei componenti
+  const lang = getLangFromUrl(url);  // estrae 'it' o 'en' dal path
   context.locals.lang = lang;
- 
-  console.log(`[middleware] lingua impostata: ${lang} per URL: ${url.pathname}`);
   return next();
 });
 

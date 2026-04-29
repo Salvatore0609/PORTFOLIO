@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import TopLayout from '../../layouts/TopLayout.astro'
+import BottomLayout from '../../layouts/BottomLayout.astro'
+import ProjectCard from '../../components/ProjectCard.astro'
+import { contentfulClient } from '../../lib/contentful'
+
+interface Project {
+  contentTypeId: 'Projects'
+  fields: any
+}
+
+const entries = await contentfulClient.getEntries<Project>({})
+
+const getImageUrl = (asset) => {
+  if (!asset?.fields?.file?.url) return null
+  return 'https:' + asset.fields.file.url
+}
+---
+
+<BaseLayout
+  title="Portfolio"
+  description="Projects and some clones that I did"
+>
+  <main class="flex min-h-[80vh] flex-auto flex-col" transition:animate="slide">
+    <TopLayout>
+      <h2 class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+        Projects and clones
+      </h2>
+    </TopLayout>
+    <BottomLayout size="xl">
+      <div class="flex w-full flex-wrap justify-center gap-2">
+        {entries.items.map((entry: any) => {
+          const imageUrl = getImageUrl(entry.fields.img)
+          return (
+            <ProjectCard
+              key={entry.sys.id}
+              href={entry.fields.url}
+              heading={entry.fields.title}
+              subheading={entry.fields.description}
+              tags={entry.fields.tags}
+              imagePath={imageUrl}
+              altText={entry.fields.img?.fields?.title}
+              class="w-full sm:w-2/5"
+            />
+          )
+        })}
+      </div>
+    </BottomLayout>
+  </main>
+</BaseLayout>
