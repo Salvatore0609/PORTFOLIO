@@ -14,7 +14,7 @@ const LanguageToggle: React.FC<{ currentLang: string }> = ({ currentLang }) => {
       body: formData,
     });
 
-    window.location.reload(); // Ricarica la pagina per applicare la nuova lingua
+    
   };
 
   return (

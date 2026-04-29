@@ -19,7 +19,8 @@ const languageMiddleware = defineMiddleware(async (context, next) => {
 
   // Imposta la lingua nelle variabili locali di Astro per usarla nei componenti
   context.locals.lang = lang;
-
+ 
+  console.log(`[middleware] lingua impostata: ${lang} per URL: ${url.pathname}`);
   return next();
 });
 
