@@ -12,7 +12,7 @@ interface Props {
 
 const { title, description, ogImage } = Astro.props
 
-// 👇 Leggiamo la lingua corrente dal middleware (o default 'it')
+// Leggiamo la lingua corrente dal middleware (o default 'it')
 const currentLang: 'it' | 'en' = ((Astro.locals as { lang?: string }).lang === 'en' ? 'en' : 'it')
 ---
 

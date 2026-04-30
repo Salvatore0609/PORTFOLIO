@@ -3,8 +3,7 @@ import { WORK } from '../lib/constants'
 import BaseLayout from '../layouts/BaseLayout.astro'
 import TopLayout from '../layouts/TopLayout.astro'
 import BottomLayout from '../layouts/BottomLayout.astro'
-import ProjectCard from '../components/ProjectCard.astro'
-
+import PortfolioTabs from '../components/sections/PortfolioTabs.tsx'
 import { contentfulClient } from '../lib/contentful'
 import { documentToHtmlString } from '@contentful/rich-text-html-renderer'
 import type { EntryFieldTypes } from 'contentful'
@@ -20,13 +19,88 @@ interface Project {
 }
 
 const entries = await contentfulClient.getEntries<Project>({})
-// Funzione per ottenere l'URL completo dell'immagine
 const getImageUrl = (asset) => {
   if (!asset || !asset.fields || !asset.fields.file || !asset.fields.file.url) {
     return null
   }
   return 'https:' + asset.fields.file.url
 }
+
+const webProjects = entries.items.map((entry: any) => ({
+  id:         entry.sys.id,
+  href:       entry.fields.url,
+  heading:    entry.fields.title,
+  subheading: entry.fields.description,
+  tags:       entry.fields.tags ?? [],
+  imagePath:  getImageUrl(entry.fields.img),
+  altText:    entry.fields.img?.fields?.title,
+}))
+
+const designWorks = [
+  {
+    id: 'render-01',
+    title: 'ExteriorRender_1',
+    category: 'Render' as const,
+    imagePath: '/renders/Gemini_Generated_Image_223n3p223n3p223n.png',
+    description: '',
+  },
+  {
+    id: 'render-02',
+    title: 'InteriorRender_1',
+    category: 'Render' as const,
+    imagePath: '/renders/IntRender.png',
+    description: '',
+  },
+  {
+    id: 'render-03',
+    title: 'LandscapeLagoon',
+    category: 'Render' as const,
+    imagePath: '/renders/landscapeTest2.png',
+    description: '',
+  },
+  {
+    id: '3d-01',
+    title: 'Model3D_1',
+    category: '3D' as const,
+    imagePath: '/renders/model3D.jpg',
+    description: '',
+  },
+  {
+    id: 'render-04',
+    title: 'ExteriorRender_2',
+    category: 'Render' as const,
+    imagePath: '/renders/photo_5926857553847454612_y.jpg',
+    description: '',
+  },
+  {
+    id: 'render-05',
+    title: 'ExteriorRender_3',
+    category: 'Render' as const,
+    imagePath: '/renders/RENDER2.png',
+    description: '',
+  },
+  {
+    id: 'render-06',
+    title: 'ExteriorRender_4',
+    category: 'Render' as const,
+    imagePath: '/renders/test4.jpg',
+    description: '',
+  },
+  {
+    id: 'render-07',
+    title: 'InteriorRender_2',
+    category: 'Render' as const,
+    imagePath: '/renders/test8.png',
+    description: '',
+  },
+  {
+    id: 'render-08',
+    title: 'InteriorRender_3',
+    category: 'Render' as const,
+    imagePath: '/renders/test10.png',
+    description: '',
+  },
+]
 ---
 
 <BaseLayout
@@ -35,32 +109,17 @@ const getImageUrl = (asset) => {
 >
   <main class="flex min-h-[80vh] flex-auto flex-col" transition:animate="slide">
     <TopLayout>
-      <h2
-        class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0"
-      >
-        Projects and clone's
+      <h2 class="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
+        Projects 
       </h2>
     </TopLayout>
     <BottomLayout size="xl">
-      <div class="flex w-full flex-wrap justify-center gap-2">
-        {
-          entries.items.map((entry: any) => {
-            const imageUrl = getImageUrl(entry.fields.img)
-            return (
-              <ProjectCard
-                key={entry?.sys?.id}
-                href={entry?.fields?.url}
-                heading={entry?.fields?.title}
-                subheading={entry?.fields?.description}
-                tags={entry?.fields?.tags}
-                imagePath={imageUrl}
-                altText={entry?.fields?.img?.fields?.title}
-                class="w-full sm:w-2/5"
-              />
-            )
-          })
-        }
-      </div>
+      <PortfolioTabs
+        webProjects={webProjects}
+        designWorks={designWorks}
+        lang="it"
+        client:load
+      />
     </BottomLayout>
   </main>
 </BaseLayout>
