@@ -9,7 +9,7 @@ export const ui = {
   it: {
     'nav.brand': 'Salvatore Desole',
     
-    'hero.welcome': 'benvenuto',
+    'hero.welcome': 'Benvenuto',
     'hero.greeting': "Ciao, sono",
     'hero.name': 'Salvatore Desole',
     'hero.description': "con un background in progettazione architettonica e modellazione 3D, ho sviluppato una forte passione per la creazione di soluzioni che uniscono funzionalità e chiarezza visiva. Questa mentalità mi ha portato allo sviluppo software, dove ho applicato lo stesso approccio creativo e analitico in un ambiente dinamico e tecnologico. Oggi, come sviluppatore full-stack, unisco la precisione tecnica dell'architettura con la capacità di costruire prodotti digitali utili, intuitivi e di impatto.",
@@ -30,7 +30,7 @@ export const ui = {
     
     'contact.title': 'Iniziamo a lavorare insieme!',
     'contact.details': 'Dettagli di contatto',
-    'contact.email': 'salvatoredesole1998@gmail.com',
+    'contact.email': 'salvatoredesole.tech@gmail.com',
     'contact.socials': 'Social',
     
     'cv.title': 'CV',
@@ -39,10 +39,6 @@ export const ui = {
     
     'experience.title': 'Esperienza',
     'experience.view_more': 'Vedi di più',
-    
-    'stack.title': 'Il mio Stack',
-    'stack.description': 'Ecco un riepilogo degli strumenti e tecnologie principali con cui lavoro:',
-    'stack.list': ['Solidjs', 'JavaScript', 'Node.js', 'React.js'],
     
     'now.title': 'Ora',
     'now.what_is': "cos'è?",
@@ -74,7 +70,7 @@ export const ui = {
   en: {
     'nav.brand': 'Salvatore Desole',
     
-    'hero.welcome': 'welcome',
+    'hero.welcome': 'Welcome',
     'hero.greeting': "Hi, I'm",
     'hero.name': 'Salvatore Desole',
     'hero.description': "with a background in architectural design and 3D modeling, I've developed a strong passion for creating solutions that combine functionality with visual clarity. This mindset led me to software development, where I applied the same creative and analytical approach in a dynamic, technology-driven environment. Today, as a full-stack developer, I merge the technical precision of architecture with the ability to build useful, intuitive, and impactful digital products.",
@@ -95,7 +91,7 @@ export const ui = {
     
     'contact.title': "Let's start working together!",
     'contact.details': 'Contact Details',
-    'contact.email': 'salvatoredesole1998@gmail.com',
+    'contact.email': 'salvatoredesole.tech@gmail.com',
     'contact.socials': 'Socials',
     
     'cv.title': 'CV',
@@ -104,10 +100,6 @@ export const ui = {
     
     'experience.title': 'Experience',
     'experience.view_more': 'View More',
-    
-    'stack.title': 'My Stack',
-    'stack.description': "Here's a snapshot of the primary tools and technologies I work with:",
-    'stack.list': ['Solidjs', 'JavaScript', 'Node.js', 'React.js'],
     
     'now.title': 'Now',
     'now.what_is': "what's that ?",
