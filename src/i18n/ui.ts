@@ -42,7 +42,7 @@ export const ui = {
     
     'now.title': 'Ora',
     'now.what_is': "cos'è?",
-    'now.status': 'Attualmente sto cercando lavoro',
+    'now.status': 'Attualmente sto lavorando',
     
     'study.title': 'Studio',
     
@@ -103,7 +103,7 @@ export const ui = {
     
     'now.title': 'Now',
     'now.what_is': "what's that ?",
-    'now.status': 'I am currently looking for work',
+    'now.status': 'I am working',
     
     'study.title': 'Study',
     
