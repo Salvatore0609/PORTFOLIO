@@ -6,7 +6,7 @@ import { useTranslations } from '../../i18n/utils';
 
 const { lang = 'it' } = Astro.locals as { lang?: 'it' | 'en' };
 const t = useTranslations(lang);
-const PDF = lang === 'en' ? '/CV_SALVATORE_DESOLE_EN.pdf' : '/CV_SALVATOREDESOLE.pdf'
+const PDF = lang === 'en' ? '/CV_SALVATOREDESOLE_EN.pdf' : '/CV_SALVATOREDESOLE.pdf'
 const cvTitle = t('cv.title') as string;
 ---
 
