@@ -69,7 +69,7 @@ export const ui = {
     '404.button': 'Torna alla home',
   },
   en: {
-    'nav.brand': 'Salvatore Desole',
+    'nav.brand': 'Salvatore Desole | Technical Designer and Web Developer',
     
     'hero.welcome': 'Welcome',
     'hero.greeting': "Hi, I'm",
