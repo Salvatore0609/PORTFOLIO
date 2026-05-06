@@ -9,8 +9,8 @@ export const loaderAnimation = [
 export const LINKS = {
   github: 'https://github.com/Salvatore0609',
   linkedin: 'https://www.linkedin.com/in/salvatore-desole',
-  mail: 'salvatoredesole1998@gmail.com',
-  instagram: 'https://www.instagram.com/salvatore_desole/',
+  mail: 'salvatoredesole.tech@gmail.com',
+  instagram: 'https://www.instagram.com/salvatoredesole.tech/',
   epicode:
     'https://talent.epicode.com/talent/646b2034-6347-464b-a175-b125da854ce0',
   discord: 'https://discordapp.com/users/1067154636424871946',

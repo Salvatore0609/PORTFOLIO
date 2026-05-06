@@ -20,6 +20,12 @@ const t = useTranslations(lang);
         </p>
       </div>
       <div class="flex gap-4">
+        <a href={LINKS.mail} aria-label="email" target="_blank">
+          <Button aria-label="email">
+            <Mail />
+            <span class="sr-only">Email</span>
+          </Button>
+        </a>
         <a href={LINKS.github} aria-label="github profile" target="_blank">
           <Button aria-label="github profile">
             <Github />
