@@ -7,12 +7,12 @@ export const defaultLang = 'it';
 
 export const ui = {
   it: {
-    'nav.brand': 'Salvatore Desole | Disegnatore tecnico e Sviluppatore web',
+    'nav.brand': 'Salvatore Desole | Disegnatore Tecnico CAD/BIM • Modellatore 3D • Supporto Progettazione',
     
     'hero.welcome': 'Benvenuto',
     'hero.greeting': "Ciao, sono",
     'hero.name': 'Salvatore Desole',
-    'hero.description': "con un background in progettazione architettonica, modellazione 3D e rendering, ho sviluppato una forte passione per la creazione di soluzioni che uniscono funzionalità e chiarezza visiva. Questa mentalità mi ha portato allo sviluppo software, dove ho applicato lo stesso approccio creativo e analitico in un ambiente dinamico e tecnologico. Oggi, unisco la precisione tecnica dell'architettura con la capacità di costruire prodotti digitali utili, intuitivi e di impatto.",
+    'hero.description': "sono un tecnico operativo CAD/BIM con formazione architettonica e competenze digitali avanzate, modellazione 3D e restituzione grafica. Esperienza in collaborazione con studi tecnici e supporto alla progettazione architettonica attraverso la realizzazione di elaborati tecnici, modellazione tridimensionale, rilievi e gestione documentazione progettuale. Competenze trasversali nell’ambito digitale e dello sviluppo web, con particolare attenzione al gestionale e strumenti tecnologici applicati alla progettazione.",
     
     'skills.title': 'Le mie competenze tecniche',
     'skills.primary_tools': 'I miei strumenti principali includono:',
@@ -27,7 +27,7 @@ export const ui = {
       'HTML/HTML5, CSS & Bootstrap',
       'PostgreSQL, Git, Postman & Swagger',
     ],
-    'skills.passion': 'Oltre alla programmazione, sono appassionato di architettura, viaggi, musica, videogiochi e cinema, e mi piace seguire gli ultimi sviluppi scientifici, spaziali e astronomici. Nel tempo libero, amo ascoltare buona musica, uscire con gli amici o guardare film e serie TV: è il mio modo per trovare ispirazione e mantenere viva la creatività al di fuori del mondo tech.',
+    
     
     'contact.title': 'Iniziamo a lavorare insieme!',
     'contact.details': 'Dettagli di contatto',
@@ -69,12 +69,12 @@ export const ui = {
     '404.button': 'Torna alla home',
   },
   en: {
-    'nav.brand': 'Salvatore Desole | Technical Designer and Web Developer',
+    'nav.brand': 'Salvatore Desole | CAD/BIM Technical Drafter • 3D Modeler • Design Support',
     
     'hero.welcome': 'Welcome',
     'hero.greeting': "Hi, I'm",
     'hero.name': 'Salvatore Desole',
-    'hero.description': "with a background in architectural design,3D modeling and rendering, I've developed a strong passion for creating solutions that combine functionality with visual clarity. This mindset led me to software development, where I applied the same creative and analytical approach in a dynamic, technology-driven environment. Today, I merge the technical precision of architecture with the ability to build useful, intuitive, and impactful digital products.",
+    'hero.description': "I am an operational CAD/BIM technician with an architectural background and advanced digital skills, 3D modeling, and graphic rendering. Experienced in collaborating with technical studios and supporting architectural design through the production of technical drawings, three-dimensional modeling, surveys, and project documentation management. Cross-disciplinary competencies in digital and web development, with particular focus on management systems and technology tools applied to design.",
     
     'skills.title': 'My tech skills',
     'skills.primary_tools': 'My primary tools of choice includes:',
@@ -89,7 +89,7 @@ export const ui = {
       'HTML/HTML5, CSS & Bootstrap',
       'PostgreSQL, Git, Postman & Swagger',
     ],
-    'skills.passion': "Beyond coding, I'm passionate about architecture, travel, music, video games, and cinema, and I enjoy keeping up with the latest developments in science, space, and astronomy. In my free time, I love listening to good music, hanging out with friends, or watching movies and TV series — it's my way of finding inspiration and keeping my creativity alive outside the tech world.",
+    
     
     'contact.title': "Let's start working together!",
     'contact.details': 'Contact Details',
