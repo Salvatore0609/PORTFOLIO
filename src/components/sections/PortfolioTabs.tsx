@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -38,8 +38,105 @@ const CATEGORY_STYLES: Record<DesignWork['category'], string> = {
 // ── Labels bilingue ───────────────────────────────────────────────────────────
 
 const LABELS = {
-  it: { web: 'Progetti Web', design: 'CAD · 3D · Render', visit: 'Visita il sito', all: 'Tutti' },
-  en: { web: 'Web Projects', design: 'CAD · 3D · Render', visit: 'Visit site',    all: 'All'   },
+  it: { web: 'Progetti Web', design: 'CAD · 3D · Render', visit: 'Visita il sito', all: 'Tutti', zoom: 'Ingrandisci', close: 'Chiudi' },
+  en: { web: 'Web Projects', design: 'CAD · 3D · Render', visit: 'Visit site',    all: 'All',   zoom: 'Zoom',        close: 'Close' },
+};
+
+// ── Lightbox ──────────────────────────────────────────────────────────────────
+
+interface LightboxProps {
+  images: { src: string; alt: string; title?: string; description?: string }[];
+  index: number;
+  onClose: () => void;
+  onNavigate: (newIndex: number) => void;
+  closeLabel: string;
+}
+
+const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate, closeLabel }) => {
+  const current = images[index];
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight' && images.length > 1) onNavigate((index + 1) % images.length);
+      if (e.key === 'ArrowLeft' && images.length > 1) onNavigate((index - 1 + images.length) % images.length);
+    },
+    [index, images.length, onClose, onNavigate]
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [handleKeyDown]);
+
+  if (!current) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4 py-8"
+      onClick={onClose}
+    >
+      {/* Chiudi */}
+      <button
+        onClick={onClose}
+        aria-label={closeLabel}
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      {/* Frecce navigazione */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNavigate((index - 1 + images.length) % images.length); }}
+            aria-label="Previous"
+            className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onNavigate((index + 1) % images.length); }}
+            aria-label="Next"
+            className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Contenuto */}
+      <div
+        className="flex max-h-full max-w-5xl flex-col items-center gap-3"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <img
+          src={current.src}
+          alt={current.alt}
+          className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+        />
+        {(current.title || current.description) && (
+          <div className="text-center text-white">
+            {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
+            {current.description && <p className="text-sm text-white/70">{current.description}</p>}
+          </div>
+        )}
+        {images.length > 1 && (
+          <span className="text-xs text-white/50">{index + 1} / {images.length}</span>
+        )}
+      </div>
+    </div>
+  );
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -47,12 +144,42 @@ const LABELS = {
 const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' }) => {
   const [activeTab, setActiveTab]           = useState<'web' | 'design'>('design');
   const [activeCategory, setActiveCategory] = useState<'All' | DesignWork['category']>('All');
+  const [lightboxIndex, setLightboxIndex]   = useState<number | null>(null);
+  const [lightboxSource, setLightboxSource] = useState<'design' | 'web'>('design');
   const lbl = LABELS[lang];
 
   const visibleDesign =
     activeCategory === 'All'
       ? designWorks
       : designWorks.filter((w) => w.category === activeCategory);
+
+  const designImages = visibleDesign.map((w) => ({
+    src: w.imagePath,
+    alt: w.altText ?? w.title,
+    title: w.title,
+    description: w.description,
+  }));
+
+  const webImages = webProjects
+    .filter((p) => p.imagePath)
+    .map((p) => ({
+      src: p.imagePath as string,
+      alt: p.altText ?? p.heading,
+      title: p.heading,
+      description: p.subheading,
+    }));
+
+  const openDesignLightbox = (idx: number) => {
+    setLightboxSource('design');
+    setLightboxIndex(idx);
+  };
+
+  const openWebLightbox = (idx: number) => {
+    setLightboxSource('web');
+    setLightboxIndex(idx);
+  };
+
+  const activeImages = lightboxSource === 'design' ? designImages : webImages;
 
   return (
     <div className="w-full">
@@ -80,49 +207,63 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
       {/* ── Tab: Progetti Web ─────────────────────────────────────────────── */}
       {activeTab === 'web' && (
         <div className="flex w-full flex-wrap justify-center gap-4">
-          {webProjects.map((project) => (
-            <a
-              key={project.id}
-              href={project.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full sm:w-[45%] lg:w-[30%]"
-            >
-              <div className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md">
-                {project.imagePath && (
-                  <div className="overflow-hidden">
-                    <img
-                      src={project.imagePath}
-                      alt={project.altText ?? project.heading}
-                      className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
-                <div className="flex flex-col gap-1 px-5 py-4">
-                  <h3 className="text-base font-semibold text-foreground">{project.heading}</h3>
-                  {project.subheading && (
-                    <p className="text-sm text-muted-foreground">{project.subheading}</p>
+          {webProjects.map((project, idx) => {
+            const webIdx = webImages.findIndex((img) => img.src === project.imagePath);
+            return (
+              <div key={project.id} className="w-full sm:w-[45%] lg:w-[30%]">
+                <div className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md">
+                  {project.imagePath && (
+                    <div className="relative overflow-hidden">
+                      <a href={project.href} target="_blank" rel="noopener noreferrer">
+                        <img
+                          src={project.imagePath}
+                          alt={project.altText ?? project.heading}
+                          className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      </a>
+                      {/* Icona zoom → lightbox, indipendente dal link */}
+                      {webIdx !== -1 && (
+                        <button
+                          onClick={() => openWebLightbox(webIdx)}
+                          aria-label={lbl.zoom}
+                          className="absolute right-3 top-3 rounded-full bg-background/80 p-2 backdrop-blur-sm transition hover:bg-background"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 text-foreground">
+                            <circle cx="11" cy="11" r="7" />
+                            <path strokeLinecap="round" d="M21 21l-4.3-4.3M11 8v6M8 11h6" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   )}
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {project.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="inline-block rounded-full border border-[#C99267] px-3 py-0.5 text-xs font-medium text-[#C99267]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  {project.href && (
-                    <span className="mt-3 text-xs font-medium text-primary group-hover:underline underline-offset-2">
-                      {lbl.visit} →
-                    </span>
-                  )}
+                  <a href={project.href} target="_blank" rel="noopener noreferrer">
+                    <div className="flex flex-col gap-1 px-5 py-4">
+                      <h3 className="text-base font-semibold text-foreground">{project.heading}</h3>
+                      {project.subheading && (
+                        <p className="text-sm text-muted-foreground">{project.subheading}</p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {project.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="inline-block rounded-full border border-[#C99267] px-3 py-0.5 text-xs font-medium text-[#C99267]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      {project.href && (
+                        <span className="mt-3 text-xs font-medium text-primary group-hover:underline underline-offset-2">
+                          {lbl.visit} →
+                        </span>
+                      )}
+                    </div>
+                  </a>
                 </div>
               </div>
-            </a>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -134,7 +275,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
             {(['All', 'CAD', '3D', 'Render'] as const).map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => { setActiveCategory(cat); }}
                 className={[
                   'rounded-full border px-4 py-1 text-xs font-semibold transition-all duration-150',
                   activeCategory === cat
@@ -149,10 +290,11 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
 
           {/* Griglia lavori */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visibleDesign.map((work) => (
-              <div
+            {visibleDesign.map((work, idx) => (
+              <button
                 key={work.id}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md"
+                onClick={() => openDesignLightbox(idx)}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card text-left shadow-sm transition-all duration-200 hover:border-primary hover:shadow-md"
               >
                 <div className="relative overflow-hidden">
                   <img
@@ -179,10 +321,21 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                     </p>
                   )}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
+      )}
+
+      {/* ── Lightbox ──────────────────────────────────────────────────────── */}
+      {lightboxIndex !== null && (
+        <Lightbox
+          images={activeImages}
+          index={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          onNavigate={(newIdx) => setLightboxIndex(newIdx)}
+          closeLabel={lbl.close}
+        />
       )}
     </div>
   );
