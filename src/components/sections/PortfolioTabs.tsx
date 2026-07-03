@@ -89,6 +89,9 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
 
   const showModelViewer = Boolean(current.modelSrc) && modelViewerReady;
 
+  // URL del decoder Meshopt (CDN)
+  const meshoptDecoderUrl = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4 py-8"
@@ -129,42 +132,48 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         </>
       )}
 
-      {/* Contenuto */}
-      {showModelViewer
-  ? React.createElement('model-viewer', {
-      src: current.modelSrc,
-      poster: current.src,
-      alt: current.alt,
-      'camera-controls': true,
-      'auto-rotate': true,
-      'shadow-intensity': '1',
-      style: {
-        display: 'block',
-        width: '800px',
-        height: '500px',
-        maxWidth: '90vw',
-        maxHeight: '70vh',
-        background: 'transparent',
-      },
-      class: 'rounded-lg shadow-2xl',
-    })
-  : (
-    <img
-      src={current.src}
-      alt={current.alt}
-      className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
-    />
-  )}
+      {/* Contenuto centrale + didascalia IN COLONNA */}
+      <div className="flex flex-col items-center" onClick={stopProp}>
+        {showModelViewer
+          ? React.createElement('model-viewer', {
+              src: current.modelSrc,
+              poster: current.src,
+              alt: current.alt,
+              'camera-controls': true,
+              'auto-rotate': true,
+              'shadow-intensity': '1',
+              'meshopt-decoder-location': meshoptDecoderUrl,  // <-- CDN decoder Meshopt
+              style: {
+                display: 'block',
+                width: '800px',
+                height: '500px',
+                maxWidth: '90vw',
+                maxHeight: '70vh',
+                background: 'transparent',
+              },
+              class: 'rounded-lg shadow-2xl',
+            })
+          : (
+            <img
+              src={current.src}
+              alt={current.alt}
+              className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+            />
+          )}
+
+        {/* Didascalia SOTTO */}
         {(current.title || current.description) && (
-          <div className="text-center text-white">
+          <div className="mt-4 text-center text-white">
             {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
             {current.description && <p className="text-sm text-white/70">{current.description}</p>}
           </div>
         )}
+
         {images.length > 1 && (
-          <span className="text-xs text-white/50">{index + 1} / {images.length}</span>
+          <span className="mt-2 text-xs text-white/50">{index + 1} / {images.length}</span>
         )}
       </div>
+    </div>
   );
 };
 
