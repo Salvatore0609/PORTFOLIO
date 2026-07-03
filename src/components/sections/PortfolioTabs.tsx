@@ -95,7 +95,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
 
   async function setupModelViewer() {
     try {
-      // Carica il decoder Meshopt globale (file locale con WASM inline)
+      // Carica il decoder globale e attendi che sia pronto
       const MeshoptDecoder = await new Promise<any>((resolve, reject) => {
         if (window.MeshoptDecoder) return resolve(window.MeshoptDecoder);
 
@@ -110,15 +110,18 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         document.head.appendChild(script);
       });
 
+      // Aspetta che il WASM interno sia compilato
+      await MeshoptDecoder.ready;
+
       if (cancelled) return;
 
       // Crea il model-viewer
       const viewer = document.createElement('model-viewer');
 
-      // ⚠️ Assegna il decoder PRIMA di impostare src
+      // Assegna il decoder PRIMA di impostare qualsiasi altra cosa
       (viewer as any).meshoptDecoder = MeshoptDecoder;
 
-      // Ora imposta gli attributi (compreso src, che avvia il caricamento)
+      // Ora imposta gli attributi (src avvierà il caricamento)
       viewer.setAttribute('src', modelSrc);
       viewer.setAttribute('poster', posterSrc);
       viewer.setAttribute('alt', altText);
