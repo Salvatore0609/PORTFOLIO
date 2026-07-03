@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,6 @@ interface LightboxProps {
 
 const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate, closeLabel, modelViewerReady }) => {
   const current = images[index];
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -84,66 +83,10 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
     };
   }, [handleKeyDown]);
 
- useEffect(() => {
-  if (!current?.modelSrc || !modelViewerReady || !containerRef.current) return;
-
-  const modelSrc: string = current.modelSrc;
-  const posterSrc: string = current.src;
-  const altText: string = current.alt;
-  let cancelled = false;
-  const container = containerRef.current;
-
-  async function setupModelViewer() {
-    try {
-      // Importa il decoder direttamente da three (già presente)
-      const { MeshoptDecoder } = await import(
-        /* @vite-ignore */ 'three/examples/jsm/libs/meshopt_decoder.js'
-      );
-
-      // Attendi che il WASM sia pronto
-      await MeshoptDecoder.ready;
-
-      if (cancelled) return;
-
-      const viewer = document.createElement('model-viewer');
-
-      // Assegna il decoder PRIMA di qualunque altra cosa
-      (viewer as any).meshoptDecoder = MeshoptDecoder;
-
-      // Solo ora imposta gli attributi (src incluso)
-      viewer.setAttribute('src', modelSrc);
-      viewer.setAttribute('poster', posterSrc);
-      viewer.setAttribute('alt', altText);
-      viewer.setAttribute('camera-controls', '');
-      viewer.setAttribute('auto-rotate', '');
-      viewer.setAttribute('shadow-intensity', '1');
-      viewer.style.display = 'block';
-      viewer.style.width = '800px';
-      viewer.style.height = '500px';
-      viewer.style.maxWidth = '90vw';
-      viewer.style.maxHeight = '70vh';
-      viewer.style.background = 'transparent';
-      viewer.classList.add('rounded-lg', 'shadow-2xl');
-
-      container.innerHTML = '';
-      container.appendChild(viewer);
-    } catch (err) {
-      console.error('Failed to setup model-viewer with Meshopt decoder', err);
-    }
-  }
-
-  setupModelViewer();
-
-  return () => {
-    cancelled = true;
-    if (container) container.innerHTML = '';
-  };
-}, [current?.modelSrc, current?.src, current?.alt, modelViewerReady]);
-
   if (!current) return null;
 
-  const showModelViewer = Boolean(current.modelSrc) && modelViewerReady;
   const stopProp = (e: React.MouseEvent) => e.stopPropagation();
+  const showModelViewer = Boolean(current.modelSrc) && modelViewerReady;
 
   return (
     <div
@@ -183,26 +126,40 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         </>
       )}
 
-      <div className="flex flex-col items-center" onClick={stopProp}>
-        {showModelViewer ? (
-          <div ref={containerRef} />
-        ) : (
-          <img
-            src={current.src}
-            alt={current.alt}
-            className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
-          />
-        )}
-
+      <div className="flex flex-col items-center gap-3" onClick={stopProp}>
+        {showModelViewer
+          ? React.createElement('model-viewer', {
+              src: current.modelSrc,
+              poster: current.src,
+              alt: current.alt,
+              'camera-controls': true,
+              'auto-rotate': true,
+              'shadow-intensity': '1',
+              style: {
+                display: 'block',
+                width: '800px',
+                height: '500px',
+                maxWidth: '90vw',
+                maxHeight: '70vh',
+                background: 'transparent',
+              },
+              class: 'rounded-lg shadow-2xl',
+            })
+          : (
+            <img
+              src={current.src}
+              alt={current.alt}
+              className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+            />
+          )}
         {(current.title || current.description) && (
-          <div className="mt-4 text-center text-white">
+          <div className="text-center text-white">
             {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
             {current.description && <p className="text-sm text-white/70">{current.description}</p>}
           </div>
         )}
-
         {images.length > 1 && (
-          <span className="mt-2 text-xs text-white/50">{index + 1} / {images.length}</span>
+          <span className="text-xs text-white/50">{index + 1} / {images.length}</span>
         )}
       </div>
     </div>
@@ -219,10 +176,20 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
   const [modelViewerReady, setModelViewerReady] = useState(false);
   const lbl = LABELS[lang];
 
+  // Import lato client + configurazione del decoder Meshopt PRIMA che
+  // qualunque <model-viewer> venga montato nel DOM (requisito dell'API)
   useEffect(() => {
     let cancelled = false;
     import('@google/model-viewer').then(() => {
-      if (!cancelled) setModelViewerReady(true);
+      if (cancelled) return;
+
+      const ModelViewerElement = customElements.get('model-viewer') as any;
+      if (ModelViewerElement) {
+        ModelViewerElement.meshoptDecoderLocation =
+          'https://unpkg.com/three@0.169.0/examples/jsm/libs/meshopt_decoder.module.js';
+      }
+
+      setModelViewerReady(true);
     });
     return () => { cancelled = true; };
   }, []);
