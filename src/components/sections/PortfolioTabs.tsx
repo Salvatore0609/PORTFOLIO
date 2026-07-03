@@ -130,34 +130,31 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
       )}
 
       {/* Contenuto */}
-      <div
-        className="flex max-h-full max-w-5xl flex-col items-center gap-3"
-        onClick={stopProp}
-      >
-        {showModelViewer
-  ? (
-    <div
-      className="rounded-lg shadow-2xl overflow-hidden"
-      style={{ width: '90vw', maxWidth: '900px', height: '60vh', maxHeight: '80vh' }}
-    >
-      {React.createElement('model-viewer', {
-        src: current.modelSrc,
-        poster: current.src,
-        alt: current.alt,
-        'camera-controls': true,
-        'auto-rotate': true,
-        'shadow-intensity': '1',
-        style: { width: '100%', height: '100%', background: 'transparent', display: 'block' },
-      })}
-    </div>
-  )
-          : (
-            <img
-              src={current.src}
-              alt={current.alt}
-              className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
-            />
-          )}
+      {showModelViewer
+  ? React.createElement('model-viewer', {
+      src: current.modelSrc,
+      poster: current.src,
+      alt: current.alt,
+      'camera-controls': true,
+      'auto-rotate': true,
+      'shadow-intensity': '1',
+      style: {
+        display: 'block',
+        width: '800px',
+        height: '500px',
+        maxWidth: '90vw',
+        maxHeight: '70vh',
+        background: 'transparent',
+      },
+      class: 'rounded-lg shadow-2xl',
+    })
+  : (
+    <img
+      src={current.src}
+      alt={current.alt}
+      className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+    />
+  )}
         {(current.title || current.description) && (
           <div className="text-center text-white">
             {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
@@ -168,7 +165,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
           <span className="text-xs text-white/50">{index + 1} / {images.length}</span>
         )}
       </div>
-    </div>
   );
 };
 
