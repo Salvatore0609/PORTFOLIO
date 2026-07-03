@@ -135,16 +135,22 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         onClick={stopProp}
       >
         {showModelViewer
-          ? React.createElement('model-viewer', {
-              src: current.modelSrc,
-              poster: current.src,
-              alt: current.alt,
-              'camera-controls': true,
-              'auto-rotate': true,
-              'shadow-intensity': '1',
-              style: { width: '100%', height: '60vh', maxHeight: '80vh', background: 'transparent' },
-              class: 'rounded-lg shadow-2xl',
-            })
+  ? (
+    <div
+      className="rounded-lg shadow-2xl overflow-hidden"
+      style={{ width: '90vw', maxWidth: '900px', height: '60vh', maxHeight: '80vh' }}
+    >
+      {React.createElement('model-viewer', {
+        src: current.modelSrc,
+        poster: current.src,
+        alt: current.alt,
+        'camera-controls': true,
+        'auto-rotate': true,
+        'shadow-intensity': '1',
+        style: { width: '100%', height: '100%', background: 'transparent', display: 'block' },
+      })}
+    </div>
+  )
           : (
             <img
               src={current.src}
