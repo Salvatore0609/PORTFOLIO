@@ -104,7 +104,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
           return new Promise((resolve, reject) => {
             if ((window as any).MeshoptDecoder) return resolve((window as any).MeshoptDecoder);
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
+            script.src = 'https://unpkg.com/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
             script.async = true;
             script.onload = () => {
               if ((window as any).MeshoptDecoder) resolve((window as any).MeshoptDecoder);
