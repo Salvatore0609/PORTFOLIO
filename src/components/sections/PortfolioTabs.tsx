@@ -95,33 +95,22 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
 
   async function setupModelViewer() {
     try {
-      // Carica il decoder globale e attendi che sia pronto
-      const MeshoptDecoder = await new Promise<any>((resolve, reject) => {
-        if (window.MeshoptDecoder) return resolve(window.MeshoptDecoder);
+      // Importa il decoder direttamente da three (già presente)
+      const { MeshoptDecoder } = await import(
+        /* @vite-ignore */ 'three/examples/jsm/libs/meshopt_decoder.js'
+      );
 
-        const script = document.createElement('script');
-        script.src = '/libs/meshopt/meshopt_decoder.js';
-        script.async = true;
-        script.onload = () => {
-          if (window.MeshoptDecoder) resolve(window.MeshoptDecoder);
-          else reject(new Error('MeshoptDecoder non inizializzato'));
-        };
-        script.onerror = () => reject(new Error('Caricamento script Meshopt fallito'));
-        document.head.appendChild(script);
-      });
-
-      // Aspetta che il WASM interno sia compilato
+      // Attendi che il WASM sia pronto
       await MeshoptDecoder.ready;
 
       if (cancelled) return;
 
-      // Crea il model-viewer
       const viewer = document.createElement('model-viewer');
 
-      // Assegna il decoder PRIMA di impostare qualsiasi altra cosa
+      // Assegna il decoder PRIMA di qualunque altra cosa
       (viewer as any).meshoptDecoder = MeshoptDecoder;
 
-      // Ora imposta gli attributi (src avvierà il caricamento)
+      // Solo ora imposta gli attributi (src incluso)
       viewer.setAttribute('src', modelSrc);
       viewer.setAttribute('poster', posterSrc);
       viewer.setAttribute('alt', altText);

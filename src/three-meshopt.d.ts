@@ -1,6 +1,5 @@
-// src/types/meshopt_decoder.d.ts
-interface Window {
-  MeshoptDecoder?: {
+declare module 'three/examples/jsm/libs/meshopt_decoder.js' {
+  export const MeshoptDecoder: {
     ready: Promise<void>;
     supported: boolean;
     decodeGltfBuffer(
