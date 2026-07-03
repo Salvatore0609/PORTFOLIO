@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import '@google/model-viewer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,7 @@ export interface DesignWork {
   imagePath: string;
   altText?: string;
   description?: string;
+  modelPath?: string;   // <-- NUOVO
 }
 
 interface Props {
@@ -44,8 +46,16 @@ const LABELS = {
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 
+interface LightboxImage {
+  src: string;
+  alt: string;
+  title?: string;
+  description?: string;
+  modelSrc?: string;   // <-- NUOVO
+}
+
 interface LightboxProps {
-  images: { src: string; alt: string; title?: string; description?: string }[];
+  images: LightboxImage[];
   index: number;
   onClose: () => void;
   onNavigate: (newIndex: number) => void;
@@ -74,6 +84,8 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
   }, [handleKeyDown]);
 
   if (!current) return null;
+
+  const stopProp = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
     <div
@@ -118,13 +130,26 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
       {/* Contenuto */}
       <div
         className="flex max-h-full max-w-5xl flex-col items-center gap-3"
-        onClick={(e) => e.stopPropagation()}
+        onClick={stopProp}
       >
-        <img
-          src={current.src}
-          alt={current.alt}
-          className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
-        />
+        {current.modelSrc
+          ? React.createElement('model-viewer', {
+              src: current.modelSrc,
+              poster: current.src,
+              alt: current.alt,
+              'camera-controls': true,
+              'auto-rotate': true,
+              'shadow-intensity': '1',
+              style: { width: '100%', height: '60vh', maxHeight: '80vh', background: 'transparent' },
+              class: 'rounded-lg shadow-2xl',
+            })
+          : (
+            <img
+              src={current.src}
+              alt={current.alt}
+              className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+            />
+          )}
         {(current.title || current.description) && (
           <div className="text-center text-white">
             {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
@@ -158,6 +183,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
     alt: w.altText ?? w.title,
     title: w.title,
     description: w.description,
+    modelSrc: w.modelPath,   // <-- NUOVO
   }));
 
   const webImages = webProjects
@@ -167,6 +193,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
       alt: p.altText ?? p.heading,
       title: p.heading,
       description: p.subheading,
+      // i progetti web non hanno modelSrc per ora
     }));
 
   const openDesignLightbox = (idx: number) => {
@@ -222,7 +249,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                           loading="lazy"
                         />
                       </a>
-                      {/* Icona zoom → lightbox, indipendente dal link */}
+                      {/* Icona zoom → lightbox */}
                       {webIdx !== -1 && (
                         <button
                           onClick={() => openWebLightbox(webIdx)}
@@ -303,7 +330,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                     className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  {/* Badge categoria in overlay */}
+                  {/* Badge categoria */}
                   <span
                     className={[
                       'absolute right-3 top-3 rounded-full border bg-background/80 px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm',
@@ -312,6 +339,15 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                   >
                     {work.category}
                   </span>
+                  {/* Icona 3D interattivo (opzionale) */}
+                  {work.modelPath && (
+                    <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
+                      <svg className="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      3D
+                    </span>
+                  )}
                 </div>
                 <div className="px-4 py-3">
                   <h3 className="text-sm font-semibold text-foreground">{work.title}</h3>
