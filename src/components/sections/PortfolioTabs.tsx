@@ -84,69 +84,69 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
     };
   }, [handleKeyDown]);
 
-  useEffect(() => {
-    if (!current?.modelSrc || !modelViewerReady || !containerRef.current) return;
+ useEffect(() => {
+  if (!current?.modelSrc || !modelViewerReady || !containerRef.current) return;
 
-    const modelSrc: string = current.modelSrc;
-    const posterSrc: string = current.src;
-    const altText: string = current.alt;
-    let cancelled = false;
-    const container = containerRef.current;
+  const modelSrc: string = current.modelSrc;
+  const posterSrc: string = current.src;
+  const altText: string = current.alt;
+  let cancelled = false;
+  const container = containerRef.current;
 
-    async function setupModelViewer() {
-      try {
-        // Carica il decoder Meshopt dal file locale (WASM inline, nessun .wasm)
-        function loadMeshoptDecoder(): Promise<any> {
-          return new Promise((resolve, reject) => {
-            if (window.MeshoptDecoder) return resolve(window.MeshoptDecoder);
+  async function setupModelViewer() {
+    try {
+      // Carica il decoder Meshopt globale (file locale con WASM inline)
+      const MeshoptDecoder = await new Promise<any>((resolve, reject) => {
+        if (window.MeshoptDecoder) return resolve(window.MeshoptDecoder);
 
-            const script = document.createElement('script');
-            script.src = '/libs/meshopt/meshopt_decoder.js';
-            script.async = true;
-            script.onload = () => {
-              if (window.MeshoptDecoder) resolve(window.MeshoptDecoder);
-              else reject(new Error('MeshoptDecoder not initialized'));
-            };
-            script.onerror = () => reject(new Error('Failed to load MeshoptDecoder script'));
-            document.head.appendChild(script);
-          });
-        }
+        const script = document.createElement('script');
+        script.src = '/libs/meshopt/meshopt_decoder.js';
+        script.async = true;
+        script.onload = () => {
+          if (window.MeshoptDecoder) resolve(window.MeshoptDecoder);
+          else reject(new Error('MeshoptDecoder non inizializzato'));
+        };
+        script.onerror = () => reject(new Error('Caricamento script Meshopt fallito'));
+        document.head.appendChild(script);
+      });
 
-        const MeshoptDecoder = await loadMeshoptDecoder();
+      if (cancelled) return;
 
-        if (cancelled) return;
+      // Crea il model-viewer
+      const viewer = document.createElement('model-viewer');
 
-        const viewer = document.createElement('model-viewer');
-        viewer.setAttribute('src', modelSrc);
-        viewer.setAttribute('poster', posterSrc);
-        viewer.setAttribute('alt', altText);
-        viewer.setAttribute('camera-controls', '');
-        viewer.setAttribute('auto-rotate', '');
-        viewer.setAttribute('shadow-intensity', '1');
-        viewer.style.display = 'block';
-        viewer.style.width = '800px';
-        viewer.style.height = '500px';
-        viewer.style.maxWidth = '90vw';
-        viewer.style.maxHeight = '70vh';
-        viewer.style.background = 'transparent';
-        viewer.classList.add('rounded-lg', 'shadow-2xl');
+      // ⚠️ Assegna il decoder PRIMA di impostare src
+      (viewer as any).meshoptDecoder = MeshoptDecoder;
 
-        (viewer as any).meshoptDecoder = MeshoptDecoder;
+      // Ora imposta gli attributi (compreso src, che avvia il caricamento)
+      viewer.setAttribute('src', modelSrc);
+      viewer.setAttribute('poster', posterSrc);
+      viewer.setAttribute('alt', altText);
+      viewer.setAttribute('camera-controls', '');
+      viewer.setAttribute('auto-rotate', '');
+      viewer.setAttribute('shadow-intensity', '1');
+      viewer.style.display = 'block';
+      viewer.style.width = '800px';
+      viewer.style.height = '500px';
+      viewer.style.maxWidth = '90vw';
+      viewer.style.maxHeight = '70vh';
+      viewer.style.background = 'transparent';
+      viewer.classList.add('rounded-lg', 'shadow-2xl');
 
-        container.innerHTML = '';
-        container.appendChild(viewer);
-      } catch (err) {
-        console.error('Failed to setup model-viewer with Meshopt decoder', err);
-      }
+      container.innerHTML = '';
+      container.appendChild(viewer);
+    } catch (err) {
+      console.error('Failed to setup model-viewer with Meshopt decoder', err);
     }
+  }
 
-    setupModelViewer();
+  setupModelViewer();
 
-    return () => {
-      cancelled = true;
-      if (container) container.innerHTML = '';
-    };
-  }, [current?.modelSrc, current?.src, current?.alt, modelViewerReady]);
+  return () => {
+    cancelled = true;
+    if (container) container.innerHTML = '';
+  };
+}, [current?.modelSrc, current?.src, current?.alt, modelViewerReady]);
 
   if (!current) return null;
 
