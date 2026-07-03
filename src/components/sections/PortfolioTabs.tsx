@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,9 @@ interface LightboxProps {
 
 const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate, closeLabel, modelViewerReady }) => {
   const current = images[index];
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Gestione tastiera e scroll lock
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -83,14 +85,79 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
     };
   }, [handleKeyDown]);
 
+  // Effetto per il model-viewer con decoder Meshopt
+  useEffect(() => {
+    if (!current?.modelSrc || !modelViewerReady || !containerRef.current) return;
+
+    // Conserva i valori in costanti per TypeScript (e per evitare undefined dopo await)
+    const modelSrc: string = current.modelSrc;
+    const posterSrc: string = current.src;
+    const altText: string = current.alt;
+
+    let cancelled = false;
+    const container = containerRef.current;
+
+    async function setupModelViewer() {
+      try {
+        // Carica il decoder Meshopt dalla CDN inserendo uno script globale
+        function loadMeshoptDecoder(): Promise<any> {
+          return new Promise((resolve, reject) => {
+            if ((window as any).MeshoptDecoder) return resolve((window as any).MeshoptDecoder);
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
+            script.async = true;
+            script.onload = () => {
+              if ((window as any).MeshoptDecoder) resolve((window as any).MeshoptDecoder);
+              else reject(new Error('MeshoptDecoder did not initialize'));
+            };
+            script.onerror = () => reject(new Error('Failed to load MeshoptDecoder script'));
+            document.head.appendChild(script);
+          });
+        }
+
+        const MeshoptDecoder = await loadMeshoptDecoder();
+
+        if (cancelled) return;
+
+        // Crea l'elemento model-viewer
+        const viewer = document.createElement('model-viewer');
+        viewer.setAttribute('src', modelSrc);
+        viewer.setAttribute('poster', posterSrc);
+        viewer.setAttribute('alt', altText);
+        viewer.setAttribute('camera-controls', '');
+        viewer.setAttribute('auto-rotate', '');
+        viewer.setAttribute('shadow-intensity', '1');
+        viewer.style.display = 'block';
+        viewer.style.width = '800px';
+        viewer.style.height = '500px';
+        viewer.style.maxWidth = '90vw';
+        viewer.style.maxHeight = '70vh';
+        viewer.style.background = 'transparent';
+        viewer.classList.add('rounded-lg', 'shadow-2xl');
+
+        // Assegna il decoder PRIMA di aggiungerlo al DOM
+        (viewer as any).meshoptDecoder = MeshoptDecoder;
+
+        // Pulisci il container e aggiungi il viewer
+        container.innerHTML = '';
+        container.appendChild(viewer);
+      } catch (err) {
+        console.error('Failed to setup model-viewer with Meshopt decoder', err);
+      }
+    }
+
+    setupModelViewer();
+
+    return () => {
+      cancelled = true;
+      if (container) container.innerHTML = '';
+    };
+  }, [current?.modelSrc, current?.src, current?.alt, modelViewerReady]);
+
   if (!current) return null;
 
-  const stopProp = (e: React.MouseEvent) => e.stopPropagation();
-
   const showModelViewer = Boolean(current.modelSrc) && modelViewerReady;
-
-  // URL del decoder Meshopt (CDN)
-  const meshoptDecoderUrl = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
+  const stopProp = (e: React.MouseEvent) => e.stopPropagation();
 
   return (
     <div
@@ -132,36 +199,18 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         </>
       )}
 
-      {/* Contenuto centrale + didascalia IN COLONNA */}
+      {/* Contenuto */}
       <div className="flex flex-col items-center" onClick={stopProp}>
-        {showModelViewer
-          ? React.createElement('model-viewer', {
-              src: current.modelSrc,
-              poster: current.src,
-              alt: current.alt,
-              'camera-controls': true,
-              'auto-rotate': true,
-              'shadow-intensity': '1',
-              'meshopt-decoder-location': meshoptDecoderUrl,  // <-- CDN decoder Meshopt
-              style: {
-                display: 'block',
-                width: '800px',
-                height: '500px',
-                maxWidth: '90vw',
-                maxHeight: '70vh',
-                background: 'transparent',
-              },
-              class: 'rounded-lg shadow-2xl',
-            })
-          : (
-            <img
-              src={current.src}
-              alt={current.alt}
-              className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
-            />
-          )}
+        {showModelViewer ? (
+          <div ref={containerRef} />
+        ) : (
+          <img
+            src={current.src}
+            alt={current.alt}
+            className="max-h-[80vh] w-auto rounded-lg object-contain shadow-2xl"
+          />
+        )}
 
-        {/* Didascalia SOTTO */}
         {(current.title || current.description) && (
           <div className="mt-4 text-center text-white">
             {current.title && <h3 className="text-base font-semibold">{current.title}</h3>}
