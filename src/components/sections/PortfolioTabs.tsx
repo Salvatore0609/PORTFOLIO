@@ -66,7 +66,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
   const current = images[index];
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Gestione tastiera e scroll lock
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -85,30 +84,28 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
     };
   }, [handleKeyDown]);
 
-  // Effetto per il model-viewer con decoder Meshopt
   useEffect(() => {
     if (!current?.modelSrc || !modelViewerReady || !containerRef.current) return;
 
-    // Conserva i valori in costanti per TypeScript (e per evitare undefined dopo await)
     const modelSrc: string = current.modelSrc;
     const posterSrc: string = current.src;
     const altText: string = current.alt;
-
     let cancelled = false;
     const container = containerRef.current;
 
     async function setupModelViewer() {
       try {
-        // Carica il decoder Meshopt dalla CDN inserendo uno script globale
+        // Carica il decoder Meshopt dal file locale (WASM inline, nessun .wasm)
         function loadMeshoptDecoder(): Promise<any> {
           return new Promise((resolve, reject) => {
-            if ((window as any).MeshoptDecoder) return resolve((window as any).MeshoptDecoder);
+            if (window.MeshoptDecoder) return resolve(window.MeshoptDecoder);
+
             const script = document.createElement('script');
-            script.src = 'https://unpkg.com/three@0.160.0/examples/jsm/libs/meshopt_decoder.js';
+            script.src = '/libs/meshopt/meshopt_decoder.js';
             script.async = true;
             script.onload = () => {
-              if ((window as any).MeshoptDecoder) resolve((window as any).MeshoptDecoder);
-              else reject(new Error('MeshoptDecoder did not initialize'));
+              if (window.MeshoptDecoder) resolve(window.MeshoptDecoder);
+              else reject(new Error('MeshoptDecoder not initialized'));
             };
             script.onerror = () => reject(new Error('Failed to load MeshoptDecoder script'));
             document.head.appendChild(script);
@@ -119,7 +116,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
 
         if (cancelled) return;
 
-        // Crea l'elemento model-viewer
         const viewer = document.createElement('model-viewer');
         viewer.setAttribute('src', modelSrc);
         viewer.setAttribute('poster', posterSrc);
@@ -135,10 +131,8 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         viewer.style.background = 'transparent';
         viewer.classList.add('rounded-lg', 'shadow-2xl');
 
-        // Assegna il decoder PRIMA di aggiungerlo al DOM
         (viewer as any).meshoptDecoder = MeshoptDecoder;
 
-        // Pulisci il container e aggiungi il viewer
         container.innerHTML = '';
         container.appendChild(viewer);
       } catch (err) {
@@ -164,7 +158,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm px-4 py-8"
       onClick={onClose}
     >
-      {/* Chiudi */}
       <button
         onClick={onClose}
         aria-label={closeLabel}
@@ -175,7 +168,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         </svg>
       </button>
 
-      {/* Frecce navigazione */}
       {images.length > 1 && (
         <>
           <button
@@ -199,7 +191,6 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         </>
       )}
 
-      {/* Contenuto */}
       <div className="flex flex-col items-center" onClick={stopProp}>
         {showModelViewer ? (
           <div ref={containerRef} />
@@ -236,7 +227,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
   const [modelViewerReady, setModelViewerReady] = useState(false);
   const lbl = LABELS[lang];
 
-  // Import di @google/model-viewer SOLO lato client, mai in SSR
   useEffect(() => {
     let cancelled = false;
     import('@google/model-viewer').then(() => {
@@ -281,8 +271,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
 
   return (
     <div className="w-full">
-
-      {/* Toggle principale */}
       <div className="mb-8 flex justify-center">
         <div className="inline-flex rounded-xl border border-border bg-muted p-1 shadow-sm">
           {(['design', 'web'] as const).map((tab) => (
@@ -302,7 +290,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
         </div>
       </div>
 
-      {/* ── Tab: Progetti Web ─────────────────────────────────────────────── */}
       {activeTab === 'web' && (
         <div className="flex w-full flex-wrap justify-center gap-4">
           {webProjects.map((project) => {
@@ -364,10 +351,8 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
         </div>
       )}
 
-      {/* ── Tab: CAD / 3D / Render ────────────────────────────────────────── */}
       {activeTab === 'design' && (
         <div>
-          {/* Filtro categorie */}
           <div className="mb-6 flex justify-center gap-2 flex-wrap">
             {(['All', 'CAD', '3D', 'Render'] as const).map((cat) => (
               <button
@@ -385,7 +370,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
             ))}
           </div>
 
-          {/* Griglia lavori */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {visibleDesign.map((work, idx) => (
               <button
@@ -431,7 +415,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
         </div>
       )}
 
-      {/* ── Lightbox ──────────────────────────────────────────────────────── */}
       {lightboxIndex !== null && (
         <Lightbox
           images={activeImages}
