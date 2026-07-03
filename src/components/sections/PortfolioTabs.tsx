@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import '@google/model-viewer';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -20,7 +19,7 @@ export interface DesignWork {
   imagePath: string;
   altText?: string;
   description?: string;
-  modelPath?: string;   // <-- NUOVO
+  modelPath?: string;
 }
 
 interface Props {
@@ -51,7 +50,7 @@ interface LightboxImage {
   alt: string;
   title?: string;
   description?: string;
-  modelSrc?: string;   // <-- NUOVO
+  modelSrc?: string;
 }
 
 interface LightboxProps {
@@ -60,9 +59,10 @@ interface LightboxProps {
   onClose: () => void;
   onNavigate: (newIndex: number) => void;
   closeLabel: string;
+  modelViewerReady: boolean;
 }
 
-const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate, closeLabel }) => {
+const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate, closeLabel, modelViewerReady }) => {
   const current = images[index];
 
   const handleKeyDown = useCallback(
@@ -86,6 +86,8 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
   if (!current) return null;
 
   const stopProp = (e: React.MouseEvent) => e.stopPropagation();
+
+  const showModelViewer = Boolean(current.modelSrc) && modelViewerReady;
 
   return (
     <div
@@ -132,7 +134,7 @@ const Lightbox: React.FC<LightboxProps> = ({ images, index, onClose, onNavigate,
         className="flex max-h-full max-w-5xl flex-col items-center gap-3"
         onClick={stopProp}
       >
-        {current.modelSrc
+        {showModelViewer
           ? React.createElement('model-viewer', {
               src: current.modelSrc,
               poster: current.src,
@@ -171,7 +173,17 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
   const [activeCategory, setActiveCategory] = useState<'All' | DesignWork['category']>('All');
   const [lightboxIndex, setLightboxIndex]   = useState<number | null>(null);
   const [lightboxSource, setLightboxSource] = useState<'design' | 'web'>('design');
+  const [modelViewerReady, setModelViewerReady] = useState(false);
   const lbl = LABELS[lang];
+
+  // Import di @google/model-viewer SOLO lato client, mai in SSR
+  useEffect(() => {
+    let cancelled = false;
+    import('@google/model-viewer').then(() => {
+      if (!cancelled) setModelViewerReady(true);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   const visibleDesign =
     activeCategory === 'All'
@@ -183,7 +195,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
     alt: w.altText ?? w.title,
     title: w.title,
     description: w.description,
-    modelSrc: w.modelPath,   // <-- NUOVO
+    modelSrc: w.modelPath,
   }));
 
   const webImages = webProjects
@@ -193,7 +205,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
       alt: p.altText ?? p.heading,
       title: p.heading,
       description: p.subheading,
-      // i progetti web non hanno modelSrc per ora
     }));
 
   const openDesignLightbox = (idx: number) => {
@@ -234,7 +245,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
       {/* ── Tab: Progetti Web ─────────────────────────────────────────────── */}
       {activeTab === 'web' && (
         <div className="flex w-full flex-wrap justify-center gap-4">
-          {webProjects.map((project, idx) => {
+          {webProjects.map((project) => {
             const webIdx = webImages.findIndex((img) => img.src === project.imagePath);
             return (
               <div key={project.id} className="w-full sm:w-[45%] lg:w-[30%]">
@@ -249,7 +260,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                           loading="lazy"
                         />
                       </a>
-                      {/* Icona zoom → lightbox */}
                       {webIdx !== -1 && (
                         <button
                           onClick={() => openWebLightbox(webIdx)}
@@ -330,7 +340,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                     className="h-56 w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  {/* Badge categoria */}
                   <span
                     className={[
                       'absolute right-3 top-3 rounded-full border bg-background/80 px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm',
@@ -339,7 +348,6 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
                   >
                     {work.category}
                   </span>
-                  {/* Icona 3D interattivo (opzionale) */}
                   {work.modelPath && (
                     <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white backdrop-blur-sm">
                       <svg className="inline h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -371,6 +379,7 @@ const PortfolioTabs: React.FC<Props> = ({ webProjects, designWorks, lang = 'it' 
           onClose={() => setLightboxIndex(null)}
           onNavigate={(newIdx) => setLightboxIndex(newIdx)}
           closeLabel={lbl.close}
+          modelViewerReady={modelViewerReady}
         />
       )}
     </div>
